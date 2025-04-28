@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Post - Truth</title>
+    <link rel="stylesheet" href="estilos.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <!-- Componentes comunes -->
+    <div id="header-container"></div>
+    <div class="main-layout">
+        <div id="sidebar-container"></div>
+
+        <!-- Contenido principal -->
+        <main class="crear-post-section">
+            <div class="crear-post-wrapper">
+                
+                <!-- Selector de categoría -->
+                <div class="categoria-selector">
+                    <img src="icons/music-icon.png" alt="icono" class="categoria-icon">
+                    <select id="categoria" class="categoria-dropdown">
+                        <option selected disabled>SELECT A CATEGORY</option>
+                        <option value="music">🎵 Music</option>
+                        <option value="maths">📐 Maths</option>
+                    </select>
+                </div>
+
+                <!-- Área de texto con ícono de adjuntar -->
+                <div class="post-area-wrapper">
+                    <textarea id="contenidoPost" class="post-textarea" placeholder=""></textarea>
+                    <label for="fileUpload" class="attach-icon material-icons">attach_file</label>
+                    <input type="file" id="fileUpload" hidden>
+                </div>
+
+                <!-- Botón de posteo -->
+                <div class="post-btn-wrapper">
+                    <button class="btn post-btn">POST</button>
+                </div>
+
+            </div>
+        </main>
+    </div>
+    <div id="footer-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

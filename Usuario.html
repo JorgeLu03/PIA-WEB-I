@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usuario - Truth</title>
+  <link rel="stylesheet" href="estilos.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+      <div id="header-container"></div>
+
+      <section class="usuario-section">
+        <!-- Banner y foto de perfil (estructura de editar_perfil.html) -->
+        <div class="profile-picture">
+            <div class="profile-image-container">
+              <img src="foto.JPG" alt="Banner">
+            </div>
+            <div class="profile-image-circle">
+              <img src="foto.JPG" alt="Foto de perfil">
+            </div>
+          </div>
+          
+
+        <!-- Información del usuario (basado en imagen) -->
+        <div class="usuario-info" style="padding: 0 30px; margin-bottom: 40px; text-align: center; margin-top: 40px;">
+          <h1 style="font-size: 36px; margin: 0; font-weight: bold;">TECAYEHUATZIN</h1>
+          <button class="btn-follow">+ FOLLOW</button>
+        </div>
+
+        <!-- Pestañas de contenido (basado en imagen) -->
+        <div class="content-tabs" style="justify-content: center;">
+          <button class="tab-btn active">POSTS</button>
+          <button class="tab-btn">INFORMATION</button>
+        </div>
+
+        <!-- Grid de posts (ejemplo basado en imagen) -->
+        <div class="posts-grid" style="padding: 30px; max-width: 600px; margin: 0 auto;">
+          <div class="post">
+            <div class="post-header">
+              <img src="Downloads\foto.JPG" alt="avatar" class="avatar">
+              <span style="font-weight: bold;">TECAYEHUATZIN</span>
+              <span style="margin-left: auto; color: #888; cursor: pointer;">⋯</span>
+            </div>
+            <p class="post-text" style="margin: 15px 0;">
+              ¿SABÍAS QUE LA GRAN MURALLA CHINA NO SE VE DESDE EL ESPACIO A SIMPLE VISTA?
+              LOS ASTRONAUTAS HAN CONFIRMADO QUE LA GRAN MURALLA ES EXTREMADAMENTE
+              DIFÍCIL DE VER DESDE LA ÓRBITA BAJA DE LA TIERRA SIN AYUDA. SU COLOR Y FORMA...
+            </p>
+          </div>
+          <!-- Más posts aquí -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="footer-container"></div>
+  <script src="script.js"></script>
+</body>
+</html>

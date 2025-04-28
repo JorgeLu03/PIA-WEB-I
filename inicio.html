@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Truth - Inicio</title>
+  <link rel="stylesheet" href="estilos.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div id="sidebar-container"></div>
+
+    <main class="main-content home-page">
+      <div id="header-container"></div>
+
+      <section class="posts">
+        <article class="post">
+          <div class="post-header">
+            <img src="foto.JPG" class="avatar" />
+            <h3>Jaime Altozano</h3>
+          </div>
+          <p class="post-text">
+            ¿Sabían que la música tiene el poder de cambiar nuestra percepción del tiempo? ¡Así es! [...]
+          </p>
+          <img src="foto.JPG" class="post-img" />
+          <div class="post-actions">
+            ❤️ 🤍 🔖
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div id="footer-container"></div>
+
+  <script>
+    // Verificar si hay un usuario logueado
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData) {
+      window.location.href = 'index_login.html';
+    } else {
+      // Mostrar datos del usuario después de que se carguen los componentes
+      document.addEventListener('DOMContentLoaded', function() {
+        // Esperar un momento para que los componentes se carguen
+        setTimeout(() => {
+          const userSpan = document.querySelector('.user-profile span');
+          const userImg = document.querySelector('.user-profile img');
+          if (userSpan) userSpan.textContent = userData.username;
+          if (userImg && userData.profile_image_url) {
+            userImg.src = userData.profile_image_url;
+          }
+        }, 100);
+      });
+    }
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>

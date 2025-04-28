@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Perfil</title>
+  <link rel="stylesheet" href="estilos.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+  <div class="container">
+    <div id="sidebar-container"></div>
+
+    <main class="main-content edit-profile-page">
+      <div id="header-container"></div>
+
+      <div class="login-container">
+        <form id="editarPerfilForm" class="usuario-box editar-perfil-form" enctype="multipart/form-data">
+          <div class="profile-picture">
+            <div class="profile-image-container">
+              <img id="previewCover" src="" alt="Preview" style="display: none;">
+              <input type="file" name="cover_image" id="coverUpload" accept="image/*" style="display: none;">
+              <span class="material-icons edit-icon" onclick="document.getElementById('coverUpload').click()">edit</span>
+            </div>
+            <div class="profile-image-circle">
+              <img id="previewProfile" src="" alt="Preview" style="display: none;">
+              <input type="file" name="profile_image" id="profileUpload" accept="image/*" style="display: none;">
+              <span class="material-icons edit-icon" onclick="document.getElementById('profileUpload').click()">edit</span>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-section">
+              <input type="text" name="username" class="input input-center" placeholder="USUARIO" required>
+
+              <div class="input-row">
+                <input type="text" name="first_name" class="input" placeholder="NOMBRES" required>
+                <input type="text" name="last_name" class="input" placeholder="APELLIDOS" required>
+              </div>
+
+              <input type="email" name="email" class="input" placeholder="CORREO" required>
+
+              <input type="date" name="date_of_birth" class="input date-input" placeholder="FECHA DE NACIMIENTO" required>
+
+              <textarea name="bio" class="input" placeholder="BIO" rows="3"></textarea>
+            </div>
+
+            <div class="form-section">
+              <input type="password" name="current_password" class="input" placeholder="CONTRASEÑA ACTUAL" required>
+              <input type="password" name="new_password" class="input" placeholder="NUEVA CONTRASEÑA">
+              <input type="password" name="confirm_password" class="input" placeholder="CONFIRMAR NUEVA CONTRASEÑA">
+              
+              <button type="submit" class="btn">GUARDAR CAMBIOS</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <div id="footer-container"></div>
+
+  <script>
+    // Preview de imágenes
+    function previewImage(input, previewId) {
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById(previewId);
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    document.getElementById('profileUpload').addEventListener('change', function() {
+      previewImage(this, 'previewProfile');
+    });
+
+    document.getElementById('coverUpload').addEventListener('change', function() {
+      previewImage(this, 'previewCover');
+    });
+
+    // Cargar datos del usuario actual
+    document.addEventListener('DOMContentLoaded', function() {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (userData) {
+        document.querySelector('input[name="username"]').value = userData.username || '';
+        if (userData.profile_image_url) {
+          document.getElementById('previewProfile').src = userData.profile_image_url;
+          document.getElementById('previewProfile').style.display = 'block';
+        }
+        if (userData.cover_image_url) {
+          document.getElementById('previewCover').src = userData.cover_image_url;
+          document.getElementById('previewCover').style.display = 'block';
+        }
+      }
+    });
+
+    // Manejo del formulario
+    document.getElementById('editarPerfilForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      if (this.new_password.value && this.new_password.value !== this.confirm_password.value) {
+        alert('Las nuevas contraseñas no coinciden');
+        return;
+      }
+
+      const formData = new FormData(this);
+      if (!this.new_password.value) {
+        formData.delete('new_password');
+        formData.delete('confirm_password');
+      }
+
+      try {
+        const response = await fetch('http://localhost:3000/update-profile', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          alert('Perfil actualizado exitosamente');
+          // Actualizar datos en localStorage
+          const userData = JSON.parse(localStorage.getItem('userData'));
+          userData.username = this.username.value;
+          if (data.profile_image_url) userData.profile_image_url = data.profile_image_url;
+          if (data.cover_image_url) userData.cover_image_url = data.cover_image_url;
+          localStorage.setItem('userData', JSON.stringify(userData));
+          
+          window.location.href = 'inicio.html';
+        } else {
+          alert(data.error || 'Error al actualizar el perfil');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al conectar con el servidor');
+      }
+    });
+  </script>
+  <script src="script.js"></script>
+</body>
+</html> 

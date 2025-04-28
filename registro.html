@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Perfil de Usuario</title>
+  <link rel="stylesheet" href="estilos.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <style>
+    .input {
+      margin-bottom: 14px;
+    }
+    .input-row {
+      margin-bottom: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="content-wrapper">
+      <div class="login-container">
+        <form id="registroForm" class="usuario-box registro-form" enctype="multipart/form-data">
+          <div class="profile-picture">
+            <div class="profile-image-container">
+              <img id="previewCover" src="" alt="Preview" style="display: none;">
+              <input type="file" name="cover_image" id="coverUpload" accept="image/*" style="display: none;">
+              <span class="material-icons edit-icon" onclick="document.getElementById('coverUpload').click()">edit</span>
+            </div>
+            <div class="profile-image-circle">
+              <img id="previewProfile" src="" alt="Preview" style="display: none;">
+              <input type="file" name="profile_image" id="profileUpload" accept="image/*" style="display: none;">
+              <span class="material-icons edit-icon" onclick="document.getElementById('profileUpload').click()">edit</span>
+            </div>
+          </div>
+
+          <input type="text" name="username" class="input input-center" placeholder="USUARIO" required>
+
+          <div class="input-row">
+            <input type="text" name="first_name" class="input" placeholder="NOMBRES" required>
+            <input type="text" name="last_name" class="input" placeholder="APELLIDOS" required>
+          </div>
+
+          <input type="email" name="email" class="input" placeholder="CORREO" required>
+
+          <input type="date" name="date_of_birth" class="input date-input" placeholder="FECHA DE NACIMIENTO" required>
+
+          <textarea name="bio" class="input" placeholder="BIO" rows="3"></textarea>
+
+          <input type="password" name="password" class="input" placeholder="CONTRASEÑA" required>
+          <input type="password" name="confirm_password" class="input" placeholder="CONFIRMAR CONTRASEÑA" required>
+
+          <button type="submit" class="input btn" style="width: 30%;">REGISTRAR</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Preview de imágenes
+    function previewImage(input, previewId) {
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById(previewId);
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    document.getElementById('profileUpload').addEventListener('change', function() {
+      previewImage(this, 'previewProfile');
+    });
+
+    document.getElementById('coverUpload').addEventListener('change', function() {
+      previewImage(this, 'previewCover');
+    });
+
+    // Manejo del formulario
+    document.getElementById('registroForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      if (this.password.value !== this.confirm_password.value) {
+        alert('Las contraseñas no coinciden');
+        return;
+      }
+
+      const formData = new FormData(this);
+      formData.delete('confirm_password'); // No enviamos la confirmación al servidor
+
+      try {
+        const response = await fetch('http://localhost:3000/register', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          alert('Usuario registrado exitosamente');
+          window.location.href = 'index_login.html'; // Redirigir al login
+        } else {
+          alert(data.error || 'Error al registrar usuario');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al conectar con el servidor');
+      }
+    });
+  </script>
+</body>
+</html>

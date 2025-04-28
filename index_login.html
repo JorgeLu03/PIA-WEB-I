@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iniciar Sesión</title>
+  <link rel="stylesheet" href="estilos.css"/>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <img src="LOGO TRUTH.png" alt="Logo" class="login-logo"/>
+      <h2>INICIAR SESIÓN</h2>
+      <a href="registro.html" class="link">REGÍSTRATE</a>
+
+      <form id="loginForm">
+        <input type="text" id="username" name="username" placeholder="USUARIO" class="input" required />
+        <input type="password" id="password" name="password" placeholder="CONTRASEÑA" class="input" required />
+
+        <a href="#" class="link small">OLVIDÉ MI CONTRASEÑA</a>
+
+        <button type="submit" class="btn">CONTINUAR</button>
+      </form>
+    </div>
+    <div class="login-footer">
+      <a href="#" class="link">CONTACT</a>
+      <a href="#" class="link">FAQ</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('http://localhost:3000/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Guardar datos del usuario en localStorage
+          localStorage.setItem('userData', JSON.stringify(data.user));
+          window.location.href = 'inicio.html';
+        } else {
+          alert(data.error || 'Error al iniciar sesión');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al conectar con el servidor');
+      }
+    });
+  </script>
+</body>
+</html>

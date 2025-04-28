@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explore | Truth</title>
+  <link rel="stylesheet" href="estilos.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="content-wrapper">
+      <div class="container">
+        <div id="sidebar-container"></div>
+
+        <div class="main-content" style="padding-left: 100px;">
+          <div id="header-container"></div>
+
+          <!-- CATEGORÍAS -->
+          <section class="categories-section">
+            <h2 style="font-size: 32px;">EXPLORE CATEGORIES</h2>
+            <div class="categories-grid" style="display: flex; gap: 40px; margin-bottom: 60px;">
+              <!-- Aquí se cargarán dinámicamente desde base de datos -->
+              <div class="category-item" style="text-align: center;">
+                <a href="Categoria.html" style="text-decoration: none; color: inherit;">
+                  <img src="foto.JPG" class="avatar" style="width: 100px; height: 100px; cursor: pointer;"><br>
+                  <span style="font-size: 18px;">MÚSICA</span>
+                </a>
+              </div>
+              <div class="category-item" style="text-align: center;">
+                <img src="foto.JPG" class="avatar" style="width: 100px; height: 100px;"><br>
+                <span style="font-size: 18px;">GEOGRAFÍA</span>
+              </div>
+              <div class="category-item" style="text-align: center;">
+                <img src="foto.JPG" class="avatar" style="width: 100px; height: 100px;"><br>
+                <span style="font-size: 18px;">BIOLOGÍA</span>
+              </div>
+              <div class="category-item" style="text-align: center;">
+                <img src="foto.JPG" class="avatar" style="width: 100px; height: 100px;"><br>
+                <span style="font-size: 18px;">CÓDIGO</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- CREADORES -->
+          <section class="creators-section">
+            <h2 style="font-size: 32px;">EXPLORE CREATORS</h2>
+            <div class="creators-grid" style="display: flex; gap: 40px;">
+              <!-- También se cargarán desde base de datos -->
+              <div class="creator-item" style="text-align: center;">
+                <a href="usuario.html" style="text-decoration: none; color: inherit;">
+                  <img src="foto.JPG" class="avatar" style="width: 100px; height: 100px; cursor: pointer;"><br>
+                  <span style="font-size: 18px;">JOSÉ LUIS<br>CRESPO</span>
+                </a>
+              </div>
+              <div class="creator-item" style="text-align: center;">
+                <img src="foto.JPG" class="avatar" style="width: 100px; height: 100px;"><br>
+                <span style="font-size: 18px;">JULIO<br>RÍOS</span>
+              </div>
+              <div class="creator-item" style="text-align: center;">
+                <img src="foto.JPG" class="avatar" style="width: 100px; height: 100px;"><br>
+                <span style="font-size: 18px;">JAIME<br>ALTOZANO</span>
+              </div>
+              <div class="creator-item" style="text-align: center;">
+                <img src="foto.JPG" class="avatar" style="width: 100px; height: 100px;"><br>
+                <span style="font-size: 18px;">TECAYEHUATZIN</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+    
+    <!-- FOOTER -->
+    <div id="footer-container"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
