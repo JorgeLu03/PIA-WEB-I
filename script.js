@@ -1,6 +1,33 @@
 // Cache for components
 const componentCache = new Map();
 
+// ...existing code...
+
+document.addEventListener('DOMContentLoaded', function() {
+  const recuperarForm = document.getElementById('recuperarForm');
+  if (recuperarForm) {
+    recuperarForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const mensaje = document.getElementById('mensajeRecuperar');
+      mensaje.textContent = 'Se envió un enlace de recuperación al correo proporcionado.';
+      mensaje.style.color = '#2ecc71';
+    });
+  }
+});
+// ...existing code...
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Recuperar contraseña
+  const recuperarForm = document.getElementById('recuperarForm');
+  if (recuperarForm) {
+    recuperarForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const mensaje = document.getElementById('mensajeRecuperar');
+      mensaje.textContent = 'Se envió un enlace de confirmación al correo proporcionado.';
+      mensaje.style.color = '#fff';
+    });
+  }
+});
 // Function to load and cache components
 async function loadComponent(containerId, file) {
     try {
@@ -98,24 +125,77 @@ function handleNavigation(e) {
 }
 
 // Handle image preview
-function handleImagePreview(inputId, previewId) {
-    const input = document.getElementById(inputId);
-    const preview = document.getElementById(previewId);
-    
-    if (input && preview) {
-        input.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                }
-                reader.readAsDataURL(file);
-            }
-        });
+function handleImagePreview(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        const preview = document.getElementById('imagePreview');
+        const removeBtn = document.querySelector('.remove-image');
+        const previewContainer = document.querySelector('.preview-container');
+
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            removeBtn.style.display = 'block';
+            previewContainer.style.display = 'inline-block';
+        }
+        reader.readAsDataURL(file);
     }
 }
+
+function removeImage() {
+    const preview = document.getElementById('imagePreview');
+    const removeBtn = document.querySelector('.remove-image');
+    const fileInput = document.getElementById('fileUpload');
+    const previewContainer = document.querySelector('.preview-container');
+    
+    preview.src = '';
+    preview.style.display = 'none';
+    removeBtn.style.display = 'none';
+    previewContainer.style.display = 'none';
+    fileInput.value = '';
+}
+
+// Función para manejar las reacciones
+function toggleReaction(button, type) {
+  const icon = button.querySelector('.material-icons');
+  const count = button.querySelector('.reaction-count');
+  
+  if (button.classList.contains('active')) {
+    button.classList.remove('active');
+    count.textContent = parseInt(count.textContent) - 1;
+    
+    // Restaurar ícono original
+    switch(type) {
+      case 'like':
+        icon.textContent = 'thumb_up';
+        break;
+      case 'dislike':
+        icon.textContent = 'favorite_border';
+        break;
+      case 'bookmark':
+        icon.textContent = 'bookmark_border';
+        break;
+    }
+  } else {
+    button.classList.add('active');
+    count.textContent = parseInt(count.textContent) + 1;
+    
+    // Cambiar ícono cuando está activo
+    switch(type) {
+      case 'like':
+        icon.textContent = 'thumb_up_alt';
+        break;
+      case 'dislike':
+        icon.textContent = 'favorite';
+        break;
+      case 'bookmark':
+        icon.textContent = 'bookmark';
+        break;
+    }
+  }
+}
+
 
 // Load components when DOM is ready
 document.addEventListener('DOMContentLoaded', async function() {
@@ -129,8 +209,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // Initialize image preview handlers
-    handleImagePreview('coverUpload', 'preview');
-    handleImagePreview('profileUpload', 'previewCircle');
+    const fileUpload = document.getElementById('fileUpload');
+    if (fileUpload) {
+        fileUpload.addEventListener('change', handleImagePreview);
+    }
 
     // Login functionality
     const botonContinuar = document.getElementById('btnContinuar');

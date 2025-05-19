@@ -25,7 +25,18 @@
           </p>
           <img src="foto.JPG" class="post-img" />
           <div class="post-actions">
-            ❤️ 🤍 🔖
+            <button class="reaction-btn" onclick="toggleReaction(this, 'like')">
+              <span class="material-icons">thumb_up</span>
+              <span class="reaction-count">0</span>
+            </button>
+            <button class="reaction-btn" onclick="toggleReaction(this, 'dislike')">
+              <span class="material-icons">favorite_border</span>
+              <span class="reaction-count">0</span>
+            </button>
+            <button class="reaction-btn" onclick="toggleReaction(this, 'bookmark')">
+              <span class="material-icons">bookmark_border</span>
+              <span class="reaction-count">0</span>
+            </button>
           </div>
         </article>
       </section>

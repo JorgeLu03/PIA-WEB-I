@@ -3,13 +3,17 @@
       <input type="text" placeholder="Buscar" />
       <select>
         <option value="recientes">Más recientes</option>
+        <option value="antiguos">Más antiguos</option>
+        <option value="vistos">Ya vistos</option>
+        <option value="populares">Más populares</option>
+        <option value="seguidos">Seguidos</option>
       </select>
     </div>
     <div class="top-actions">
       <a href="post.html" style="text-decoration: none;">
-        <button class="new-post">+ New Post</button>
+        <button class="new-post">+ Publicar</button>
       </a>
-      <button class="notifications-btn">
+      <button id="notificacionesBtn" class="notifications-btn">
         <span class="material-icons notifications-icon">notifications</span>
         <span class="notifications-count">3</span>
       </button>
@@ -17,5 +21,9 @@
         <span>Javier</span>
         <img src="usuario.jpg" alt="Usuario" />
       </div>
+      <a href="index_login.html" class="logout-btn">
+        <span class="material-icons">logout</span>
+      </a>
     </div>
+    
   </header>

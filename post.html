@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-    <!-- Componentes comunes -->
     <div id="header-container"></div>
     <div class="main-layout">
         <div id="sidebar-container"></div>
@@ -18,11 +17,10 @@
                 
                 <!-- Selector de categoría -->
                 <div class="categoria-selector">
-                    <img src="icons/music-icon.png" alt="icono" class="categoria-icon">
-                    <select id="categoria" class="categoria-dropdown">
-                        <option selected disabled>SELECT A CATEGORY</option>
-                        <option value="music">🎵 Music</option>
-                        <option value="maths">📐 Maths</option>
+                    <select id="categoria" class="categoria-dropdown" style="background: transparent; color: white; border: none; padding: 6px; font-family: 'Grovana', sans-serif;">
+                        <option selected disabled>SELECCIONA UNA CATEGORÍA</option>
+                        <option value="music">🎵 MUSICA</option>
+                        <option value="maths">📐 MATEMÁTICAS</option>
                     </select>
                 </div>
 
@@ -30,19 +28,21 @@
                 <div class="post-area-wrapper">
                     <textarea id="contenidoPost" class="post-textarea" placeholder=""></textarea>
                     <label for="fileUpload" class="attach-icon material-icons">attach_file</label>
-                    <input type="file" id="fileUpload" hidden>
+                    <input type="file" id="fileUpload" hidden accept="image/*">
+                    <div class="preview-container">
+                        <img id="imagePreview" class="image-preview">
+                    </div>
                 </div>
 
                 <!-- Botón de posteo -->
                 <div class="post-btn-wrapper">
-                    <button class="btn post-btn">POST</button>
+                    <button class="btn post-btn">PUBLICAR</button>
                 </div>
 
             </div>
         </main>
     </div>
     <div id="footer-container"></div>
-
     <script src="script.js"></script>
 </body>
 </html>
