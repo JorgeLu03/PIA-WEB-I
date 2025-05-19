@@ -201,10 +201,17 @@ body {
 }
 
 .post {
+   width: 100%;
+  max-width: 900px;      /* Ajusta el ancho máximo según tu preferencia */
+  min-height: 340px;     /* Ajusta la altura mínima según tu diseño */
+  margin: 0 auto 2rem auto;
   background: #3a3a3a;
   border-radius: 20px;
   padding: 20px;
-  margin-bottom: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .post-header {
@@ -585,17 +592,15 @@ textarea.input {
 }
 
 .crear-post-section {
+  margin-left: 260px;         /* Igual que .main-content */
+  padding: 80px 20px 90px 20px; /* Igual que .main-content, ajusta si tu header/footer cambian */
+  min-height: 100vh;
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
-  align-items: center;
-  width: calc(100% - 260px);
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  padding-left: 260px;
-  overflow: hidden;
-  z-index: 1;
+  align-items: flex-start;    /* No centrar vertical, solo horizontal */
+  width: auto;                /* Quita el width calc */
+  padding-left: 0;            /* Quita el padding-left extra */
 }
 
 .crear-post-wrapper {

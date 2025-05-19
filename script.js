@@ -53,8 +53,36 @@ async function loadComponent(containerId, file) {
 
         // Si es el header, actualizar los datos del usuario después de cargarlo
         if (file === 'header.html') {
-            updateUserData();
+    updateUserData();
+
+    // Agregar búsqueda después de cargar el header
+    const searchInput = document.querySelector('.search-bar input[type="text"]');
+const postsContainer = document.getElementById('posts-container');
+if (searchInput && postsContainer) {
+  // Limpiar búsqueda y mostrar todos los posts al cargar
+  searchInput.value = '';
+  const posts = postsContainer.querySelectorAll('.post');
+  posts.forEach(post => {
+    post.style.display = '';
+  });
+
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const searchText = searchInput.value.trim().toLowerCase();
+      posts.forEach(post => {
+        const title = post.querySelector('.post-title')?.textContent.toLowerCase() || '';
+        const content = post.querySelector('.post-text')?.textContent.toLowerCase() || '';
+        if (title.includes(searchText) || content.includes(searchText)) {
+          post.style.display = '';
+        } else {
+          post.style.display = 'none';
         }
+      });
+    }
+  });
+}
+}
     } catch (error) {
         console.error(`Error loading ${file}:`, error);
     }
@@ -111,18 +139,30 @@ async function preloadComponents() {
     await Promise.all(components.map(comp => loadComponent(comp.id, comp.file)));
 }
 
-// Handle navigation
 function handleNavigation(e) {
     if (e.target.tagName === 'A' && e.target.getAttribute('href')) {
         e.preventDefault();
         const href = e.target.getAttribute('href');
         
+        // Si vas a inicio.html, limpia búsqueda y muestra todos los posts
+        if (href === 'inicio.html') {
+            const searchInput = document.querySelector('.search-bar input[type="text"]');
+            const postsContainer = document.getElementById('posts-container');
+            if (searchInput && postsContainer) {
+                searchInput.value = '';
+                const posts = postsContainer.querySelectorAll('.post');
+                posts.forEach(post => {
+                    post.style.display = '';
+                });
+            }
+        }
+
         // Only navigate if it's not the current page
         if (href !== window.location.pathname.split('/').pop()) {
             window.location.href = href;
         }
     }
-}
+}   
 
 // Handle image preview
 function handleImagePreview(e) {
@@ -233,4 +273,110 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Actualizar datos del usuario en el header
     updateUserData();
+});
+
+// Búsqueda de posts por texto al presionar Enter en el buscador del header
+document.addEventListener('DOMContentLoaded', function() {
+  // Espera breve para asegurar que el header esté en el DOM si se carga dinámicamente
+  setTimeout(() => {
+    const searchInput = document.querySelector('.search-bar input[type="text"]');
+    const postsContainer = document.getElementById('posts-container');
+    if (searchInput && postsContainer) {
+      searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const searchText = searchInput.value.trim().toLowerCase();
+          const posts = postsContainer.querySelectorAll('.post');
+          posts.forEach(post => {
+            const title = post.querySelector('.post-title')?.textContent.toLowerCase() || '';
+            const content = post.querySelector('.post-text')?.textContent.toLowerCase() || '';
+            if (title.includes(searchText) || content.includes(searchText)) {
+              post.style.display = '';
+            } else {
+              post.style.display = 'none';
+            }
+          });
+        }
+      });
+    }
+  }, 200);
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const postBtn = document.querySelector('.post-btn');
+  const textarea = document.getElementById('contenidoPost');
+  const fileInput = document.getElementById('fileUpload');
+
+  if (postBtn && textarea && fileInput) {
+    postBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (!userData) {
+        alert('Debes iniciar sesión para publicar.');
+        return;
+      }
+
+      const text = textarea.value.trim();
+      if (!text) {
+        alert('El contenido no puede estar vacío.');
+        return;
+      }
+
+      // Leer imagen si existe
+      const file = fileInput.files[0];
+      if (file) {
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    savePost(userData.username, text, evt.target.result, userData.profile_image_url);
+  };
+  reader.readAsDataURL(file);
+} else {
+  savePost(userData.username, text, null, userData.profile_image_url);
+}
+    });
+  }
+
+  function savePost(username, text, imageData, userImage) {
+  const posts = JSON.parse(localStorage.getItem('posts')) || [];
+  posts.unshift({
+    username,
+    text,
+    image: imageData,
+    userImage: userImage, // Guarda la imagen de usuario
+    date: new Date().toISOString()
+  });
+  localStorage.setItem('posts', JSON.stringify(posts));
+  window.location.href = 'inicio.html';
+}
+});
+document.addEventListener('DOMContentLoaded', function() {
+  const postsContainer = document.getElementById('posts-container');
+  if (postsContainer) {
+    const posts = JSON.parse(localStorage.getItem('posts')) || [];
+    postsContainer.innerHTML = posts.map(post => `
+  <article class="post">
+    <div class="post-header">
+      <img src="${post.userImage || 'usuario.jpg'}" class="avatar" />
+      <h3 class="post-title">${post.username}</h3>
+    </div>
+    <p class="post-text">${post.text}</p>
+    ${post.image ? `<img src="${post.image}" class="post-img" />` : ''}
+        <div class="post-actions">
+          <button class="reaction-btn" onclick="toggleReaction(this, 'like')">
+            <span class="material-icons">thumb_up</span>
+            <span class="reaction-count">0</span>
+          </button>
+          <button class="reaction-btn" onclick="toggleReaction(this, 'dislike')">
+            <span class="material-icons">favorite_border</span>
+            <span class="reaction-count">0</span>
+          </button>
+          <button class="reaction-btn" onclick="toggleReaction(this, 'bookmark')">
+            <span class="material-icons">bookmark_border</span>
+            <span class="reaction-count">0</span>
+          </button>
+        </div>
+      </article>
+    `).join('');
+  }
 });
