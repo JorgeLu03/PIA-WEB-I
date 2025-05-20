@@ -82,6 +82,49 @@ if (searchInput && postsContainer) {
     }
   });
 }
+// ...dentro de loadComponent, después del bloque de búsqueda...
+const orderSelect = document.getElementById('orderSelect');
+if (orderSelect && postsContainer) {
+  orderSelect.addEventListener('change', function() {
+    ordenarPosts(orderSelect.value);
+  });
+
+  // Ordenar al cargar por defecto (más recientes)
+  ordenarPosts(orderSelect.value);
+}
+
+function ordenarPosts(orden) {
+  const posts = JSON.parse(localStorage.getItem('posts')) || [];
+  if (orden === 'antiguos') {
+    posts.sort((a, b) => new Date(a.date) - new Date(b.date));
+  } else {
+    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
+  postsContainer.innerHTML = posts.map(post => `
+    <article class="post">
+      <div class="post-header">
+        <img src="${post.userImage || 'usuario.jpg'}" class="avatar" />
+        <h3 class="post-title">${post.username}</h3>
+      </div>
+      <p class="post-text">${post.text}</p>
+      ${post.image ? `<img src="${post.image}" class="post-img" />` : ''}
+      <div class="post-actions">
+        <button class="reaction-btn" onclick="toggleReaction(this, 'like')">
+          <span class="material-icons">thumb_up</span>
+          <span class="reaction-count">0</span>
+        </button>
+        <button class="reaction-btn" onclick="toggleReaction(this, 'dislike')">
+          <span class="material-icons">favorite_border</span>
+          <span class="reaction-count">0</span>
+        </button>
+        <button class="reaction-btn" onclick="toggleReaction(this, 'bookmark')">
+          <span class="material-icons">bookmark_border</span>
+          <span class="reaction-count">0</span>
+        </button>
+      </div>
+    </article>
+  `).join('');
+}
 }
     } catch (error) {
         console.error(`Error loading ${file}:`, error);
@@ -285,6 +328,8 @@ document.addEventListener('DOMContentLoaded', function() {
       searchInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();
+          renderPostsFiltro();
+
           const searchText = searchInput.value.trim().toLowerCase();
           const posts = postsContainer.querySelectorAll('.post');
           posts.forEach(post => {
@@ -297,8 +342,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
           });
         }
+
       });
     }
+    if (orderSelect) {
+      orderSelect.addEventListener('change', renderPostsFiltro);
+    }
+
+    // Renderiza al cargar
+    renderPostsFiltro();
   }, 200);
 });
 
@@ -380,3 +432,241 @@ document.addEventListener('DOMContentLoaded', function() {
     `).join('');
   }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+  const creatorsGrid = document.getElementById('creators-grid');
+  if (creatorsGrid) {
+    fetch('http://localhost:3000/users')
+      .then(res => res.json())
+      .then(users => {
+        creatorsGrid.innerHTML = users.map(user => {
+          // Si el nombre tiene espacio, lo parte en dos líneas
+          const nameParts = user.username.split(' ');
+          const displayName = nameParts.length > 1
+            ? `${nameParts[0]}<br>${nameParts.slice(1).join(' ')}`
+            : user.username;
+          return `
+            <div class="creator-item" style="text-align: center;">
+              <a href="Usuario.html?userId=${user.user_id}" style="text-decoration: none; color: inherit;">
+                <img src="${user.profile_image_url || 'usuario.jpg'}" class="avatar" style="width: 100px; height: 100px; cursor: pointer;"><br>
+                <span style="font-size: 18px;">${displayName}</span>
+              </a>
+            </div>
+          `;
+        }).join('');
+      });
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Obtener userId de la URL
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get('userId');
+  if (!userId) return;
+
+  // Cargar datos del usuario desde el backend
+  fetch(`http://localhost:3000/user/${userId}`)
+    .then(res => res.json())
+    .then(user => {
+      document.querySelector('.usuario-info h1').textContent = user.username;
+     document.querySelector('.profile-image-circle img').src = user.profile_image_url || 'usuario.jpg';
+document.querySelector('.profile-image-container img').src = user.cover_image_url || 'banner_default.jpg';
+
+      // Mostrar los posts de este usuario desde localStorage
+      const postsGrid = document.querySelector('.posts-grid');
+      if (postsGrid) {
+        const allPosts = JSON.parse(localStorage.getItem('posts')) || [];
+        // Filtrar posts por nombre de usuario (ajusta si guardas userId en los posts)
+        const userPosts = allPosts.filter(post => post.username === user.username);
+        postsGrid.innerHTML = userPosts.length
+  ? userPosts.map(post => `
+      <div class="post">
+        <div class="post-header">
+          <img src="${post.userImage || 'usuario.jpg'}" alt="avatar" class="avatar">
+          <span class="post-author">${post.username}</span>
+          <span class="post-options">⋯</span>
+        </div>
+        <p class="post-text">${post.text}</p>
+        ${post.image ? `<img src="${post.image}" class="post-img" />` : ''}
+        <div class="post-actions">
+          <button class="reaction-btn" onclick="toggleReaction(this, 'like')">
+            <span class="material-icons">thumb_up</span>
+            <span class="reaction-count">0</span>
+          </button>
+          <button class="reaction-btn" onclick="toggleReaction(this, 'dislike')">
+            <span class="material-icons">favorite_border</span>
+            <span class="reaction-count">0</span>
+          </button>
+          <button class="reaction-btn" onclick="toggleReaction(this, 'bookmark')">
+            <span class="material-icons">bookmark_border</span>
+            <span class="reaction-count">0</span>
+          </button>
+        </div>
+      </div>
+    `).join('')
+  : '<p style="text-align:center;">Este usuario no tiene posts aún.</p>';
+      }
+    });
+});
+
+// =================== EDITAR PERFIL ===================
+document.addEventListener('DOMContentLoaded', function() {
+  const editarPerfilForm = document.getElementById('editarPerfilForm');
+  if (!editarPerfilForm) return;
+
+  // Preview de imágenes
+  const profileUpload = document.getElementById('profileUpload');
+  const coverUpload = document.getElementById('coverUpload');
+  if (profileUpload) {
+    profileUpload.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('previewProfile');
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+  if (coverUpload) {
+    coverUpload.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('previewCover');
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // Cargar datos del usuario actual desde el backend
+  const userData = JSON.parse(localStorage.getItem('userData'));
+  if (userData && userData.id) {
+    fetch(`http://localhost:3000/user/${userData.id}`)
+      .then(res => res.json())
+      .then(user => {
+        document.querySelector('input[name="username"]').value = user.username || '';
+        document.querySelector('input[name="first_name"]').value = user.first_name || '';
+        document.querySelector('input[name="last_name"]').value = user.last_name || '';
+        document.querySelector('input[name="email"]').value = user.email || '';
+        document.querySelector('input[name="date_of_birth"]').value = user.date_of_birth ? user.date_of_birth.substring(0,10) : '';
+        document.querySelector('textarea[name="bio"]').value = user.bio || '';
+        if (user.profile_image_url) {
+          const previewProfile = document.getElementById('previewProfile');
+          previewProfile.src = user.profile_image_url;
+          previewProfile.style.display = 'block';
+        }
+        if (user.cover_image_url) {
+          const previewCover = document.getElementById('previewCover');
+          previewCover.src = user.cover_image_url;
+          previewCover.style.display = 'block';
+        }
+      })
+      .catch(() => {
+        // Si hay error, no rellenar nada
+      });
+  }
+
+  // Mostrar mensajes bonitos en el formulario
+  const mensajeDiv = document.getElementById('perfilMensaje');
+  function mostrarMensajePerfil(texto, color='#ff4444') {
+    if (mensajeDiv) {
+      mensajeDiv.textContent = texto;
+      mensajeDiv.style.color = color;
+    }
+  }
+
+  // Guardar cambios del perfil
+  editarPerfilForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    // Validación de contraseñas nuevas
+    const newPassword = editarPerfilForm.new_password ? editarPerfilForm.new_password.value : '';
+    const confirmPassword = editarPerfilForm.confirm_password ? editarPerfilForm.confirm_password.value : '';
+    if (newPassword && newPassword !== confirmPassword) {
+      mostrarMensajePerfil('Las nuevas contraseñas no coinciden');
+      return;
+    }
+
+    const formData = new FormData(editarPerfilForm);
+    formData.append('user_id', userData.id);
+
+    try {
+      const response = await fetch('http://localhost:3000/update-profile', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        mostrarMensajePerfil('Perfil actualizado correctamente', '#2ecc71');
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        mostrarMensajePerfil(data.error || 'Error al actualizar el perfil');
+      }
+    } catch (err) {
+      mostrarMensajePerfil('Error de conexión con el servidor');
+    }
+  });
+});
+
+function renderPostsFiltro() {
+  const postsContainer = document.getElementById('posts-container');
+  const searchInput = document.querySelector('.search-bar input[type="text"]');
+  const orderSelect = document.getElementById('orderSelect');
+  if (!postsContainer) return;
+
+  const posts = JSON.parse(localStorage.getItem('posts')) || [];
+  let filteredPosts = posts;
+
+  // Filtro de búsqueda por texto
+  const searchText = searchInput ? searchInput.value.trim().toLowerCase() : '';
+  if (searchText) {
+    filteredPosts = filteredPosts.filter(post => {
+      const title = post.username ? post.username.toLowerCase() : '';
+      const content = post.text ? post.text.toLowerCase() : '';
+      return title.includes(searchText) || content.includes(searchText);
+    });
+  }
+
+  // Filtro de orden
+  if (orderSelect && orderSelect.value === 'antiguos') {
+    filteredPosts.sort((a, b) => new Date(a.date) - new Date(b.date));
+  } else {
+    filteredPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
+
+  postsContainer.innerHTML = filteredPosts.length
+    ? filteredPosts.map(post => `
+      <article class="post">
+        <div class="post-header">
+          <img src="${post.userImage || 'usuario.jpg'}" class="avatar" />
+          <h3 class="post-title">${post.username}</h3>
+        </div>
+        <p class="post-text">${post.text}</p>
+        ${post.image ? `<img src="${post.image}" class="post-img" />` : ''}
+        <div class="post-actions">
+          <button class="reaction-btn" onclick="toggleReaction(this, 'like')">
+            <span class="material-icons">thumb_up</span>
+            <span class="reaction-count">0</span>
+          </button>
+          <button class="reaction-btn" onclick="toggleReaction(this, 'dislike')">
+            <span class="material-icons">favorite_border</span>
+            <span class="reaction-count">0</span>
+          </button>
+          <button class="reaction-btn" onclick="toggleReaction(this, 'bookmark')">
+            <span class="material-icons">bookmark_border</span>
+            <span class="reaction-count">0</span>
+          </button>
+        </div>
+      </article>
+    `).join('')
+    : '<p style="text-align:center;">No hay posts que coincidan.</p>';
+}

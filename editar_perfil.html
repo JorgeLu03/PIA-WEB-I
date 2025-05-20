@@ -48,7 +48,7 @@
               <input type="password" name="current_password" class="input" placeholder="CONTRASEÑA ACTUAL" required>
               <input type="password" name="new_password" class="input" placeholder="NUEVA CONTRASEÑA">
               <input type="password" name="confirm_password" class="input" placeholder="CONFIRMAR NUEVA CONTRASEÑA">
-              
+              <div id="perfilMensaje" style="font-family: 'Grovana', sans-serif; text-align:center; margin-bottom:15px; font-size:16px;"></div>
               <button type="submit" class="btn">GUARDAR CAMBIOS</button>
             </div>
           </div>
@@ -59,87 +59,7 @@
 
   <div id="footer-container"></div>
 
-  <script>
-    // Preview de imágenes
-    function previewImage(input, previewId) {
-      const file = input.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const preview = document.getElementById(previewId);
-          preview.src = e.target.result;
-          preview.style.display = 'block';
-        }
-        reader.readAsDataURL(file);
-      }
-    }
-
-    document.getElementById('profileUpload').addEventListener('change', function() {
-      previewImage(this, 'previewProfile');
-    });
-
-    document.getElementById('coverUpload').addEventListener('change', function() {
-      previewImage(this, 'previewCover');
-    });
-
-    // Cargar datos del usuario actual
-    document.addEventListener('DOMContentLoaded', function() {
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      if (userData) {
-        document.querySelector('input[name="username"]').value = userData.username || '';
-        if (userData.profile_image_url) {
-          document.getElementById('previewProfile').src = userData.profile_image_url;
-          document.getElementById('previewProfile').style.display = 'block';
-        }
-        if (userData.cover_image_url) {
-          document.getElementById('previewCover').src = userData.cover_image_url;
-          document.getElementById('previewCover').style.display = 'block';
-        }
-      }
-    });
-
-    // Manejo del formulario
-    document.getElementById('editarPerfilForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-
-      if (this.new_password.value && this.new_password.value !== this.confirm_password.value) {
-        alert('Las nuevas contraseñas no coinciden');
-        return;
-      }
-
-      const formData = new FormData(this);
-      if (!this.new_password.value) {
-        formData.delete('new_password');
-        formData.delete('confirm_password');
-      }
-
-      try {
-        const response = await fetch('http://localhost:3000/update-profile', {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await response.json();
-        
-        if (response.ok) {
-          alert('Perfil actualizado exitosamente');
-          // Actualizar datos en localStorage
-          const userData = JSON.parse(localStorage.getItem('userData'));
-          userData.username = this.username.value;
-          if (data.profile_image_url) userData.profile_image_url = data.profile_image_url;
-          if (data.cover_image_url) userData.cover_image_url = data.cover_image_url;
-          localStorage.setItem('userData', JSON.stringify(userData));
-          
-          window.location.href = 'inicio.html';
-        } else {
-          alert(data.error || 'Error al actualizar el perfil');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Error al conectar con el servidor');
-      }
-    });
-  </script>
+  
   <script src="script.js"></script>
 </body>
 </html> 

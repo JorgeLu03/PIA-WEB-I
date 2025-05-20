@@ -183,30 +183,37 @@ app.post('/login', (req, res) => {
     });
 });
 
-// Get user data endpoint
+// ...existing code...
 app.get('/user/:userId', (req, res) => {
     const userId = req.params.userId;
-    
-    const query = 'SELECT user_id, username, profile_image_url FROM users WHERE user_id = ?';
-    
+    const query = `
+        SELECT user_id, username, email, first_name, last_name, date_of_birth, bio, profile_image_url, cover_image_url
+        FROM users WHERE user_id = ?
+    `;
     conexion.query(query, [userId], (error, results) => {
         if (error) {
             console.error('Error al obtener datos del usuario:', error);
             return res.status(500).json({ error: 'Error en el servidor' });
         }
-        
         if (results.length > 0) {
             const user = results[0];
             return res.json({
                 id: user.user_id,
                 username: user.username,
-                profile_image_url: user.profile_image_url
+                email: user.email,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                date_of_birth: user.date_of_birth,
+                bio: user.bio,
+                profile_image_url: user.profile_image_url,
+                cover_image_url: user.cover_image_url
             });
         } else {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
     });
 });
+// ...existing code...
 
 app.get('/', (req, res) => {
     res.send('Servidor funcionando correctamente');
@@ -222,6 +229,116 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
 });
-        
 
+app.get('/users', (req, res) => {
+    const query = 'SELECT user_id, username, profile_image_url, cover_image_url FROM users';
+    conexion.query(query, (error, results) => {
+        if (error) {
+            console.error('Error al obtener usuarios:', error);
+            return res.status(500).json({ error: 'Error en el servidor' });
+        }
+        res.json(results);
+    });
+});
 
+// ...existing code...
+
+// ...existing code...
+
+app.post('/update-profile', async (req, res) => {
+    try {
+        // Los campos de texto llegan en req.body, los archivos en req.files
+        const {
+            user_id,
+            username,
+            email,
+            first_name,
+            last_name,
+            date_of_birth,
+            bio,
+            current_password,
+            new_password
+        } = req.body;
+
+        if (!user_id) return res.status(400).json({ error: 'ID de usuario requerido' });
+
+        // Verifica la contraseña actual
+        const getUserQuery = 'SELECT password_hash FROM users WHERE user_id = ?';
+        conexion.query(getUserQuery, [user_id], async (err, results) => {
+            if (err) return res.status(500).json({ error: 'Error al verificar usuario' });
+            if (results.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+            const dbPassword = results[0].password_hash;
+            if (current_password !== dbPassword) {
+                return res.status(401).json({ error: 'Contraseña actual incorrecta' });
+            }
+
+            // Manejo de imágenes
+            let profile_image_url = null;
+            let cover_image_url = null;
+
+            if (req.files) {
+                if (req.files.profile_image) {
+                    const profileImage = req.files.profile_image;
+                    if (!profileImage.mimetype.startsWith('image/')) {
+                        return res.status(400).json({ error: 'El archivo de perfil debe ser una imagen' });
+                    }
+                    const profileImageName = `profile_${Date.now()}${path.extname(profileImage.name)}`;
+                    const profileImagePath = path.join(__dirname, '../uploads/', profileImageName);
+                    await profileImage.mv(profileImagePath);
+                    profile_image_url = `/uploads/${profileImageName}`;
+                }
+                if (req.files.cover_image) {
+                    const coverImage = req.files.cover_image;
+                    if (!coverImage.mimetype.startsWith('image/')) {
+                        return res.status(400).json({ error: 'El archivo de portada debe ser una imagen' });
+                    }
+                    const coverImageName = `cover_${Date.now()}${path.extname(coverImage.name)}`;
+                    const coverImagePath = path.join(__dirname, '../uploads/', coverImageName);
+                    await coverImage.mv(coverImagePath);
+                    cover_image_url = `/uploads/${coverImageName}`;
+                }
+            }
+
+            // Construir query dinámico
+            let updateFields = [];
+            let updateValues = [];
+
+            if (username) { updateFields.push('username = ?'); updateValues.push(username); }
+            if (email) { updateFields.push('email = ?'); updateValues.push(email); }
+            if (first_name) { updateFields.push('first_name = ?'); updateValues.push(first_name); }
+            if (last_name) { updateFields.push('last_name = ?'); updateValues.push(last_name); }
+            if (date_of_birth) { updateFields.push('date_of_birth = ?'); updateValues.push(date_of_birth); }
+            if (bio !== undefined) { updateFields.push('bio = ?'); updateValues.push(bio); }
+            if (profile_image_url) { updateFields.push('profile_image_url = ?'); updateValues.push(profile_image_url); }
+            if (cover_image_url) { updateFields.push('cover_image_url = ?'); updateValues.push(cover_image_url); }
+            if (new_password) { updateFields.push('password_hash = ?'); updateValues.push(new_password); }
+
+            if (updateFields.length === 0) {
+                return res.status(400).json({ error: 'No hay datos para actualizar' });
+            }
+
+            updateValues.push(user_id);
+
+            const updateQuery = `UPDATE users SET ${updateFields.join(', ')}, updated_at = NOW() WHERE user_id = ?`;
+            conexion.query(updateQuery, updateValues, (err, result) => {
+                if (err) {
+                    if (err.code === 'ER_DUP_ENTRY') {
+                        return res.status(400).json({ error: 'El usuario o correo electrónico ya existe' });
+                    }
+                    return res.status(500).json({ error: 'Error al actualizar el perfil' });
+                }
+                res.json({
+                    success: true,
+                    username,
+                    profile_image_url,
+                    cover_image_url
+                });
+            });
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
+
+// ...existing code...
